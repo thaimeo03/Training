@@ -26,7 +26,8 @@ var bfs = function (u) {
         var count = 0;
         for (var _i = 0, v_1 = v; _i < v_1.length; _i++) {
             var x = v_1[_i];
-            if ((x[0] >= x[1] || x[0] == 0 || x[1] == 0) && !visit["".concat(x)]) {
+            var oppSide = [u[0] - x[0], u[1] - x[1]];
+            if ((oppSide[0] >= oppSide[1] || oppSide[0] === 0 || oppSide[0] === 3) && (x[0] >= x[1] || x[0] === 0 || x[0] === 3) && !visit["".concat(x)]) {
                 L.push([x[0], x[1], x[2]]);
                 visit["".concat(x)] = true;
                 count++;

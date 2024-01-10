@@ -31,7 +31,8 @@ const bfs = (u: number[]) => {
 
     let count = 0
     for(const x of v) {
-      if((x[0] >= x[1] || x[0] == 0 || x[1] == 0) && !visit[`${x}`]) {
+      const oppSide: number[] = [u[0] - x[0], u[1] - x[1]]  
+      if((oppSide[0] >= oppSide[1] || oppSide[0] === 0 || oppSide[0] === 3) && (x[0] >= x[1] || x[0] === 0 || x[0] === 3) && !visit[`${x}`]) {
         L.push([x[0], x[1], x[2]])
         visit[`${x}`] = true
         count++
