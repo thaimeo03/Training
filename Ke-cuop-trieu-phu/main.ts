@@ -4,8 +4,8 @@ let isActive = true
 
 const visit: { [key: string]: boolean } = {}
 
-const getAdvantage = (arr: number[][]) => {
-  return arr.sort((a, b) => (a[0] + a[1]) - (b[0] + b[1]))
+const hFunction = (arr: number[][]) => {
+  return arr.map(e => e[0] + e[1])
 }
 
 const bfs = (u: number[]) => {
@@ -36,7 +36,7 @@ const bfs = (u: number[]) => {
       })
     }
 
-    getAdvantage(v)
+    const hArr = hFunction(v)
 
     let count = 0
     for(const x of v) {
