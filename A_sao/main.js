@@ -54,10 +54,10 @@ var aStar = function () {
         // console.log(v)
         for (var _i = 0, v_1 = v; _i < v_1.length; _i++) {
             var x = v_1[_i];
-            var stateKey = x.node.join(',');
-            if (!visit[stateKey]) {
+            var oppSide = [3 - x.node[0], 3 - x.node[1]];
+            if ((oppSide[0] >= oppSide[1] || oppSide[0] === 0 || oppSide[0] === 3) && (x.node[0] >= x.node[1] || x.node[0] === 0 || x.node[0] === 3) && !visit["".concat(x.node)]) {
                 L.push(x);
-                visit[stateKey] = true;
+                visit["".concat(x.node)] = true;
             }
         }
     };

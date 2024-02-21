@@ -68,10 +68,10 @@ const aStar = () => {
 
     
     for(const x of v) {
-      const stateKey = x.node.join(',');
-      if(!visit[stateKey]) {
-        L.push(x);
-        visit[stateKey] = true;
+      const oppSide: number[] = [3 - x.node[0], 3 - x.node[1]]
+      if((oppSide[0] >= oppSide[1] || oppSide[0] === 0 || oppSide[0] === 3) && (x.node[0] >= x.node[1] || x.node[0] === 0 || x.node[0] === 3) && !visit[`${x.node}`]) {
+        L.push(x)
+        visit[`${x.node}`] = true
       }
     }
 
