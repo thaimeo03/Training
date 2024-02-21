@@ -2,6 +2,10 @@ var hFunction = function (arr) {
     return arr.map(function (e) { return e.node[0] + e.node[1]; });
 };
 var fFunction = function (arr) {
+    var h = hFunction(arr);
+    for (var i = 0; i < arr.length; i++) {
+        arr[i].cost += h[i];
+    }
     return arr.sort(function (a, b) { return a.cost - b.cost; });
 };
 var aStar = function () {
@@ -30,7 +34,7 @@ var aStar = function () {
                     var newNode = [u.node[0] - r[0], u.node[1] - r[1], 0];
                     var newState = {
                         node: newNode,
-                        cost: u.cost + 1,
+                        cost: u.cost + 1, // c(v) = c(u) + 1
                         parent: u // Lưu trạng thái cha
                     };
                     v.push(newState);
@@ -43,7 +47,7 @@ var aStar = function () {
                     var newNode = [u.node[0] + r[0], u.node[1] + r[1], 1];
                     var newState = {
                         node: newNode,
-                        cost: u.cost + 1,
+                        cost: u.cost + 1, // c(v) = c(u) + 1
                         parent: u // Lưu trạng thái cha
                     };
                     v.push(newState);
@@ -60,6 +64,7 @@ var aStar = function () {
                 visit["".concat(x.node)] = true;
             }
         }
+        console.log(L.map(function (e) { return e.node; }));
     };
     while (L.length > 0) {
         var state_1 = _loop_1();

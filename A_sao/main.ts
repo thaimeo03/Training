@@ -9,6 +9,10 @@ const hFunction = (arr: IState[]) => {
 };
 
 const fFunction = (arr: IState[]) => {
+  const h = hFunction(arr);
+  for(let i = 0; i < arr.length; i++) {
+    arr[i].cost += h[i];
+  }
   return arr.sort((a, b) => a.cost - b.cost);
 };
 
@@ -42,7 +46,7 @@ const aStar = () => {
           const newNode = [u.node[0] - r[0], u.node[1] - r[1], 0];
           const newState = {
             node: newNode,
-            cost: u.cost + 1,
+            cost: u.cost + 1, // c(v) = c(u) + 1
             parent: u // Lưu trạng thái cha
           };
           v.push(newState);
@@ -55,7 +59,7 @@ const aStar = () => {
           const newNode = [u.node[0] + r[0], u.node[1] + r[1], 1];
           const newState = {
             node: newNode,
-            cost: u.cost + 1,
+            cost: u.cost + 1, // c(v) = c(u) + 1
             parent: u // Lưu trạng thái cha
           };
           v.push(newState);
@@ -65,7 +69,6 @@ const aStar = () => {
 
     fFunction(v);
     // console.log(v)
-
     
     for(const x of v) {
       const oppSide: number[] = [3 - x.node[0], 3 - x.node[1]]
@@ -75,7 +78,7 @@ const aStar = () => {
       }
     }
 
-    // console.log(L)
+    console.log(L.map(e => e.node));
   }
 
   // Tái tạo đường đi nếu có thể đạt được trạng thái mục tiêu
