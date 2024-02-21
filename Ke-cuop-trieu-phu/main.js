@@ -2,8 +2,8 @@ var T = [0, 0, 0];
 var R = [[0, 1], [1, 0], [1, 1], [0, 2], [2, 0]];
 var isActive = true;
 var visit = {};
-var getAdvantage = function (arr) {
-    return arr.sort(function (a, b) { return (a[0] + a[1]) - (b[0] + b[1]); });
+var hFunction = function (arr) {
+    return arr.map(function (e) { return e[0] + e[1]; });
 };
 var bfs = function (u) {
     var L = [];
@@ -28,7 +28,7 @@ var bfs = function (u) {
                 }
             });
         }
-        getAdvantage(v);
+        var hArr = hFunction(v);
         var count = 0;
         for (var _i = 0, v_1 = v; _i < v_1.length; _i++) {
             var x = v_1[_i];

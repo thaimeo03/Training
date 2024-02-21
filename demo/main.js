@@ -19,34 +19,31 @@ var bfs = function (tree) {
         }
     }
 };
-function isBalanced(root) {
-    var count = 0;
-    var min = 0;
+function minDepth(root) {
+    if (!root)
+        return 0;
     var queue = [root];
+    var minDepth = 0;
     while (queue.length) {
         var len = queue.length;
-        count++;
+        minDepth++;
         for (var i = 0; i < len; i++) {
             var node = queue.shift();
-            if (!(node === null || node === void 0 ? void 0 : node.left) && !(node === null || node === void 0 ? void 0 : node.right)) {
-                min = count;
+            if (node) {
+                if (!node.left && !node.right)
+                    return minDepth;
+                if (node.left)
+                    queue.push(node.left);
+                if (node.right)
+                    queue.push(node.right);
             }
-            if (node === null || node === void 0 ? void 0 : node.left) {
-                queue.push(node.left);
-            }
-            if (node === null || node === void 0 ? void 0 : node.right) {
-                queue.push(node.right);
-            }
-        }
-        if (count - min > 1) {
-            return false;
         }
     }
-    return true;
+    return minDepth;
 }
 var main = function () {
-    // [1,2,3,4,5,6,null,8] -> to tree node
-    var res = isBalanced(new TreeNode(1, new TreeNode(2, new TreeNode(3), new TreeNode(4)), new TreeNode(5, new TreeNode(6), new TreeNode(8))));
+    // [2,null,3,null,4,null,5,null,6] -> to tree node
+    var res = minDepth(new TreeNode(2, new TreeNode(3), new TreeNode(4, new TreeNode(5), new TreeNode(6))));
     console.log(res);
     // bfs(res)
 };

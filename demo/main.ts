@@ -25,44 +25,34 @@ const bfs = (tree: TreeNode | null) => {
   }
 }
 
-function isBalanced(root: TreeNode | null): boolean {
-  let count = 0
-  let min = 0
-  const queue = [root] 
-  
-  
+function minDepth(root: TreeNode | null): number {
+  if(!root) return 0
+  const queue = [root]
+  let minDepth = 0
+
   while(queue.length) {
     const len = queue.length
-    count++
-    
+
+    minDepth++
+
     for(let i = 0; i < len; i++) {
       const node = queue.shift()
       
-      if(!node?.left && !node?.right) {
-        min = count
+      if(node) {
+        if(!node.left && !node.right) return minDepth
+        if(node.left) queue.push(node.left)
+        if(node.right) queue.push(node.right)
       }
-      
-      if(node?.left) {
-        queue.push(node.left)
-      }
-      
-      if(node?.right) {
-        queue.push(node.right)
-      }
-    }
-    
-    if(count - min > 1) {
-      return false
     }
   }
-
-  return true
+  
+  return minDepth
 }
 
 
 const main = () => {
-  // [1,2,3,4,5,6,null,8] -> to tree node
-  const res = isBalanced(new TreeNode(1, new TreeNode(2, new TreeNode(3), new TreeNode(4)), new TreeNode(5, new TreeNode(6), new TreeNode(8))))
+  // [2,null,3,null,4,null,5,null,6] -> to tree node
+  const res = minDepth(new TreeNode(2, new TreeNode(3), new TreeNode(4, new TreeNode(5), new TreeNode(6))))
 
   console.log(res);
   // bfs(res)
