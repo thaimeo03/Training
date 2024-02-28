@@ -17,7 +17,6 @@ function permutedChoice1(key: string): [string, string] {
       combined += key.charAt(PC1[i] - 1);
   }
 
-  console.log("Combined: " + combined);
   const c0 = combined.substring(0, 28);
   const d0 = combined.substring(28);
 
@@ -66,6 +65,7 @@ function generateRoundKeys(key: string): string[] {
   // Giai đoạn 2
   let [ci, di] = [c0, d0];
   for (let i = 0; i < shifts.length; i++) {
+      console.log(`C${i}: ${ci}, D${i}: ${di}`);
       const [newCi, newDi] = circularShift(ci, di, shifts[i]);
       ci = newCi;
       di = newDi;

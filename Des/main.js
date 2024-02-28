@@ -14,7 +14,6 @@ function permutedChoice1(key) {
     for (var i = 0; i < PC1.length; i++) {
         combined += key.charAt(PC1[i] - 1);
     }
-    console.log("Combined: " + combined);
     var c0 = combined.substring(0, 28);
     var d0 = combined.substring(28);
     return [c0, d0];
@@ -54,6 +53,7 @@ function generateRoundKeys(key) {
     // Giai đoạn 2
     var _b = [c0, d0], ci = _b[0], di = _b[1];
     for (var i = 0; i < shifts.length; i++) {
+        console.log("C".concat(i, ": ").concat(ci, ", D").concat(i, ": ").concat(di));
         var _c = circularShift(ci, di, shifts[i]), newCi = _c[0], newDi = _c[1];
         ci = newCi;
         di = newDi;
