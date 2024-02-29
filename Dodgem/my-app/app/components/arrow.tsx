@@ -13,7 +13,7 @@ interface ArrowProps {
 export default function Arrow({ direction, map, setMap, startSelected, setStartSelected, setCountWhite, setCountBlack }: ArrowProps) {
   const handleClick = () => {
     if(direction === 'top' && startSelected.isWhiteMoved) {
-      if(startSelected.isSelected && startSelected.index && [1, 2, 3].includes(startSelected.index)) {
+      if(startSelected.isSelected && startSelected.index !== null && [0, 1, 2].includes(startSelected.index)) {
         map[startSelected.index] = 0
         setCountWhite(pre => pre + 1)
         setStartSelected({
@@ -24,7 +24,7 @@ export default function Arrow({ direction, map, setMap, startSelected, setStartS
       }
     } else {
       if(direction === 'right' && !startSelected.isWhiteMoved) {
-        if(startSelected.isSelected && startSelected.index && [2, 5, 8].includes(startSelected.index)) {
+        if(startSelected.isSelected && startSelected.index !== null && [2, 5, 8].includes(startSelected.index)) {
           map[startSelected.index] = 0
           setCountBlack(pre => pre + 1)
           setStartSelected({
