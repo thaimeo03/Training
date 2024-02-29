@@ -1,46 +1,88 @@
 'use client'
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+
+import { Dispatch, SetStateAction, useEffect } from "react";
+import { ISelected, IStartSelected } from "../page";
+import { canMoveWhite, canSelectEnd } from "../utils/rules";
 
 interface CellProps {
-  item: number
   index: number
-  endSelectedPos: number | null
-  setEndSelectedPos: Dispatch<SetStateAction<number | null>>
   map: number[]
   setMap: Dispatch<SetStateAction<number[]>>
+  startSelected: IStartSelected
+  setStartSelected: Dispatch<SetStateAction<IStartSelected>>
+  endSelected: ISelected
+  setEndSelected: Dispatch<SetStateAction<ISelected>>
 }
 
-export default function Cell({ item, index, endSelectedPos, setEndSelectedPos, map, setMap }: CellProps) {
-  const [isStartSelected, setIsStartSelected] = useState(false)
-
+export default function Cell({ index, map, setMap, startSelected, setStartSelected, endSelected, setEndSelected }: CellProps) {
   const handleStartSelected = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     e.stopPropagation()
-    setIsStartSelected(!isStartSelected)
-  }
-
-  const handleSelectEndPos = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    setEndSelectedPos(index)
-  }
-
-  useEffect(() => {    
-    if(isStartSelected && endSelectedPos !== null) {
-      const newMap = [...map]
-      newMap[endSelectedPos] = 1
-      newMap[index] = 0
-      setMap(newMap)
+    if(canMoveWhite({map, startSelected, endSelected, index})) {
+      setStartSelected({
+        index: index,
+        isSelected: true,
+        isWhiteMoved: startSelected.isWhiteMoved
+      })
     }
-  }, [isStartSelected, endSelectedPos, setEndSelectedPos, setMap, index, map])
+    else {
+      if(startSelected.isSelected) {
+        setStartSelected({
+          index: null,
+          isSelected: false,
+          isWhiteMoved: startSelected.isWhiteMoved
+        })
+      }
+    }
+  }
+
+  const handleSelectEnd = () => {
+    if(canSelectEnd({startSelected, index})) {
+      setEndSelected({
+        index: index,
+        isSelected: true
+      })
+    }
+  }
+
+  useEffect(() => {   
+    if(startSelected.isSelected && endSelected.isSelected) {
+      const newMap = [...map]
+      if(startSelected.index !== null && endSelected.index !== null) {
+        if(map[startSelected.index] === 1) {
+          newMap[endSelected.index] = 1
+        } 
+        else if(map[startSelected.index] === -1) {
+          newMap[endSelected.index] = -1
+        }
+        newMap[startSelected.index] = 0
+
+        setEndSelected({
+          index: null,
+          isSelected: false
+        })
+        setStartSelected({
+          index: null,
+          isSelected: false,
+          isWhiteMoved: !startSelected.isWhiteMoved
+        })
+        setMap(newMap)
+      }
+    }
+  }, [startSelected, setStartSelected, endSelected, setEndSelected, setMap, index, map])
 
   return (
     <div
       className={`relative col-span-3 border border-pink-500`}
-      onClick={handleSelectEndPos}
+      onClick={handleSelectEnd}
     >
       {
-        item !==0 ? (
-          <div onClick={handleStartSelected} className={`absolute w-full h-full cursor-pointer transition-all ${isStartSelected && 'bg-slate-700 bg-opacity-65'}`}>
+        map[index] !== 0 ? (
+          <div onClick={handleStartSelected} 
+            className={`absolute w-full h-full cursor-pointer transition-all 
+            ${startSelected.isSelected && index === startSelected.index && 'bg-slate-700 bg-opacity-65'}`}>
+
             <div className="grid place-items-center h-full">
-              <div className={`w-[90px] h-[90px] rounded-full ${item === 1 ? 'bg-white' : 'bg-black'}`}></div>
+              <div className={`w-[90px] h-[90px] rounded-full ${map[index] === 1 ? 'bg-white' : 'bg-black'}`}></div>
             </div>
           </div>
         ) : null
