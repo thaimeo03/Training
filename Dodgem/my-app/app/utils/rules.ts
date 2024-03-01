@@ -49,20 +49,69 @@ export const checkWinner = ({countBlack, countWhite}: {countBlack: number, count
 }
 
 // Computer
-export const getPossibleComputerMoves = (board: Board) => {
-  const map = board.getMap()
+export const generateBoardNodesComputerMoves = (board: Board): Board[] => {
+  const nextBoards: Board[] = []
 
   if(board.getIsWhiteMoved()) {
     const whiteIndexes = board.getWhiteIndexes()
-    const nextMoves = []
-    // Change something...
+
     whiteIndexes.forEach((index) => {
-      nextMoves.push(index - 3)
-      nextMoves.push(index - 1)
-      nextMoves.push(index + 1)
+      const tempNextMoves = []
+      tempNextMoves.push(index + 1)
+      tempNextMoves.push(index - 1)
+      tempNextMoves.push(index - 3)
+
+      const tempFilteredMoves =  tempNextMoves.filter((item) => {
+        return item >= 0 && item <= 8 && !whiteIndexes.includes(item)
+      })
+
+      // Create next boards
+      tempFilteredMoves.forEach((item) => {
+        const newBoard = new Board({
+          map: board.swapMap(index, item),
+          isWhiteMoved: false // Definitely white -> black
+        })
+        nextBoards.push(newBoard)
+      })
     })
-    whiteIndexes.filter((item) => {
-      return item >= 0 && item <= 8 && !whiteIndexes.includes(item)
+  }
+  else {
+    const blackIndexes = board.getBlackIndexes()
+    
+    blackIndexes.forEach((index) => {
+      const tempNextMoves = []
+      tempNextMoves.push(index + 1)
+      tempNextMoves.push(index + 3)
+      tempNextMoves.push(index - 3)
+
+      const tempFilteredMoves =  tempNextMoves.filter((item) => {
+        return item >= 0 && item <= 8 && !blackIndexes.includes(item)
+      })
+
+      tempFilteredMoves.forEach((item) => {
+        const newBoard = new Board({
+          map: board.swapMap(index, item),
+          isWhiteMoved: true // Definitely black -> white
+        })
+        nextBoards.push(newBoard)
+      })
+    })
+  }
+
+  return nextBoards
+}
+
+export const generateTreeNodes = (rootBoard: Board) => { // Use BFS
+  const queue = [rootBoard]
+
+  while(queue.length) {
+    const temp = queue.shift()
+    
+    if(!temp) break;
+
+    const nextBoards = generateBoardNodesComputerMoves(temp)
+    nextBoards.forEach(nextBoard => {
+      queue.push(nextBoard) // Something...
     })
   }
 }
@@ -70,5 +119,4 @@ export const getPossibleComputerMoves = (board: Board) => {
 export const computerMove = (map: number[]) => {
   // MiniMax strategy
   const rootBoard = new Board({ map: START, isWhiteMoved: true })
-  
 }
