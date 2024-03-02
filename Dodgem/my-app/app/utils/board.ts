@@ -58,4 +58,8 @@ export class Board {
 
     return newMap
   }
+
+  addChild(board: Board) {
+    this.children.push(board)
+  }
 }

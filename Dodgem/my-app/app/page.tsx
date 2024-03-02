@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import Cell from "./components/cell";
 import { START } from "./constants/start";
 import Arrow from "./components/arrow";
-import { checkWinner } from "./utils/rules";
+import { checkWinner, computerMove } from "./utils/rules";
 
 export interface ISelected {
   index: number | null
@@ -30,6 +30,10 @@ export default function Home() {
   const [countBlack, setCountBlack] = useState(0)
 
   const [winner, setWinner] = useState<string>("")
+
+  useEffect(() => {
+    computerMove(map)
+  }, [map])
 
   useEffect(() => {
     setWinner(checkWinner({countBlack, countWhite}))
