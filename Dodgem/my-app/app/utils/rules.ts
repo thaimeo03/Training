@@ -49,6 +49,31 @@ export const checkWinner = ({countBlack, countWhite}: {countBlack: number, count
 }
 
 // Computer
+export const isWhiteWin = (board: Board) => {
+  let count = 0
+  const map = board.getMap()
+  for(let i = 0; i <= 2; i++) {
+    if(map[i] === 1) {
+      count += 1
+    }
+  }
+
+  return count === 2
+}
+
+export const isBlackWin = (board: Board) => {
+  let count = 0
+  const map = board.getMap()
+  const positions = [2, 5, 8]
+  positions.forEach((item) => {
+    if(map[item] === -1) {
+      count += 1
+    }
+  })
+
+  return count === 2
+}
+
 export const generateBoardNodesComputerMoves = (board: Board): Board[] => {
   const nextBoards: Board[] = []
 
@@ -103,6 +128,7 @@ export const generateBoardNodesComputerMoves = (board: Board): Board[] => {
 
 export const generateTreeNodes = (rootBoard: Board) => { // Use BFS
   const queue = [rootBoard]
+  const isVisited: {[key: string]: boolean} = {} 
 
   while(queue.length) {
     const temp = queue.shift()
@@ -110,8 +136,30 @@ export const generateTreeNodes = (rootBoard: Board) => { // Use BFS
     if(!temp) break;
 
     const nextBoards = generateBoardNodesComputerMoves(temp)
+
     nextBoards.forEach(nextBoard => {
-      queue.push(nextBoard) // Something...
+      if(!isVisited[`${nextBoard.getMap()}`]) {
+        isVisited[`${nextBoard.getMap()}`] = true
+        queue.push(nextBoard)
+        temp.addChild(nextBoard)
+      }
+    })
+  }
+}
+
+export const bfsTraversal = (rootBoard: Board) => {
+  const queue = [rootBoard]
+
+  while(queue.length) {
+    const temp = queue.shift()
+
+    if(!temp) break;
+
+    console.log(temp.getMap());
+    
+    const children = temp.getChildren()
+    children.forEach(child => {
+      queue.push(child)
     })
   }
 }
@@ -119,4 +167,7 @@ export const generateTreeNodes = (rootBoard: Board) => { // Use BFS
 export const computerMove = (map: number[]) => {
   // MiniMax strategy
   const rootBoard = new Board({ map: START, isWhiteMoved: true })
+  generateTreeNodes(rootBoard)
+  console.log(rootBoard)
+  bfsTraversal(rootBoard)
 }
