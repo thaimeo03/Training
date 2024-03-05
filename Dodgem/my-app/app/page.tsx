@@ -4,6 +4,7 @@ import Cell from "./components/cell";
 import { START } from "./constants/start";
 import Arrow from "./components/arrow";
 import { checkWinner, computerMove } from "./utils/rules";
+import { Board } from "./utils/board";
 
 export interface ISelected {
   index: number | null
@@ -32,7 +33,8 @@ export default function Home() {
   const [winner, setWinner] = useState<string>("")
 
   useEffect(() => {
-    computerMove(map)
+    const nextMove = computerMove(map) as Board
+    return setMap(nextMove.getMap())
   }, [map])
 
   useEffect(() => {

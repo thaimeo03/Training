@@ -2,6 +2,7 @@ export class Board {
   private map: number[]
   private whiteValues: number[] = [30, 35, 40, 15, 20, 25, 0,  5, 10]
   private blackValues: number[] = [-10, -25, -40, -5, -20, -35, 0, -15, -30]
+  private overallValue: number = 0
   private children: Board[] = []
   private isWhiteMoved: boolean
 
@@ -36,6 +37,28 @@ export class Board {
       }
     })
     return indexes
+  }
+
+  getOverallValue() {
+    return this.overallValue
+  }
+
+  setOverallValue(value: number) {
+    this.overallValue = value
+  }
+
+  calculateAndSetOverallValue() {
+    if(this.isWhiteMoved) {
+      const whiteIndexes = this.getWhiteIndexes()
+      const overallWhiteValue = this.getWhiteValue(whiteIndexes[0]) + this.getWhiteValue(whiteIndexes[1])
+      this.setOverallValue(overallWhiteValue)
+      return overallWhiteValue
+    } else {
+      const blackIndexes = this.getBlackIndexes()
+      const overallBlackValue = this.getBlackValue(blackIndexes[0]) + this.getBlackValue(blackIndexes[1])
+      this.setOverallValue(overallBlackValue)
+      return overallBlackValue
+    }
   }
 
   getMap() {

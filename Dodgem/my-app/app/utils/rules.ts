@@ -49,7 +49,7 @@ export const checkWinner = ({countBlack, countWhite}: {countBlack: number, count
 }
 
 // Computer
-export const isWhiteWin = (board: Board) => {
+const isWhiteWin = (board: Board) => {
   let count = 0
   const map = board.getMap()
   for(let i = 0; i <= 2; i++) {
@@ -61,7 +61,7 @@ export const isWhiteWin = (board: Board) => {
   return count === 2
 }
 
-export const isBlackWin = (board: Board) => {
+const isBlackWin = (board: Board) => {
   let count = 0
   const map = board.getMap()
   const positions = [2, 5, 8]
@@ -74,7 +74,7 @@ export const isBlackWin = (board: Board) => {
   return count === 2
 }
 
-export const generateBoardNodesComputerMoves = (board: Board): Board[] => {
+const generateBoardNodesComputerMoves = (board: Board): Board[] => {
   const nextBoards: Board[] = []
 
   if(board.getIsWhiteMoved()) {
@@ -126,7 +126,7 @@ export const generateBoardNodesComputerMoves = (board: Board): Board[] => {
   return nextBoards
 }
 
-export const generateTreeNodes = (rootBoard: Board) => { // Use BFS
+const generateTreeNodes = (rootBoard: Board) => { // Use BFS
   const queue = [rootBoard]
   const isVisited: {[key: string]: boolean} = {} 
 
@@ -134,6 +134,10 @@ export const generateTreeNodes = (rootBoard: Board) => { // Use BFS
     const temp = queue.shift()
     
     if(!temp) break;
+
+    // if(!temp.getChildren().length) {
+    //   temp.calculateAndSetOverallValue()
+    // }
 
     const nextBoards = generateBoardNodesComputerMoves(temp)
 
@@ -147,7 +151,9 @@ export const generateTreeNodes = (rootBoard: Board) => { // Use BFS
   }
 }
 
-export const bfsTraversal = (rootBoard: Board) => {
+
+// Print maps of boards
+const bfsTraversal = (rootBoard: Board) => {
   const queue = [rootBoard]
 
   while(queue.length) {
@@ -164,10 +170,52 @@ export const bfsTraversal = (rootBoard: Board) => {
   }
 }
 
+// Functions calculate values (overall value with class) of tree Nodes
+const maxVal = (u: Board): number => { // u is current white's position
+  // Check is end of game (on leafs of the tree)
+  if(u.getChildren().length === 0 || isBlackWin(u) || isWhiteWin(u)) {
+    return u.calculateAndSetOverallValue()
+  }
+  else {
+    const listV = u.getChildren().map(v => minVal(v))
+    return Math.max(...listV)
+  }
+}
+
+const minVal = (v: Board): number => { // v is current white's position
+  if(v.getChildren().length === 0 || isBlackWin(v) || isWhiteWin(v)) {
+    return v.calculateAndSetOverallValue()
+  }
+  else {
+    const listU = v.getChildren().map(u => maxVal(u))
+    return Math.min(...listU)
+  }
+}
+
+const miniMax = (u: Board): Board | null => { // u is white, v is black
+  let val = -999
+  let nextMove: Board | null = null
+
+  u.getChildren().forEach(w => {
+    // console.log(w.getOverallValue());
+    const min = minVal(w)
+    if(val <= min) {
+      val = min
+      nextMove = w
+    }
+  })
+
+  return nextMove
+}
+
+
 export const computerMove = (map: number[]) => {
-  // MiniMax strategy
   const rootBoard = new Board({ map: START, isWhiteMoved: true })
   generateTreeNodes(rootBoard)
-  console.log(rootBoard)
-  bfsTraversal(rootBoard)
+  
+  // MiniMax strategy
+  const nextMove = miniMax(rootBoard)
+  console.log(nextMove)
+
+  return nextMove
 }
