@@ -1,7 +1,7 @@
 // Mã hóa DES
 function main() {
-  const key = "0f1571c947d9e859";
-  const plaintext = "02468aceeca86420"
+  const key = "3ff81cda5f417784";
+  const plaintext = "ff1c9ca3596b7d48"
   const binKey = hexToBinary(key);
 
   console.log("Part 1: ");
@@ -317,8 +317,8 @@ function desRound(Li: string, Ri: string, roundKey: string, index?: number): [st
   const newR = xor(Li, permuted);
 
   if (index !== undefined && index === 0) {
-    console.log(`ER0: ${expandedR}`);
-    console.log(`XOR (A): ${xorResult}`);
+    console.log(`ER0: ${expandedR} - ${binaryToHex(expandedR)}`);
+    console.log(`XOR (A): ${xorResult} - ${binaryToHex(xorResult)}`);
     console.log(`S-Box: ${substituted}`);
     console.log(`Permuted (F): ${permuted}`);
     console.log(`R${index + 1}: ${newR} - ${binaryToHex(newR)}`);

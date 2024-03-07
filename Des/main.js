@@ -1,7 +1,7 @@
 // Mã hóa DES
 function main() {
-    var key = "0f1571c947d9e859";
-    var plaintext = "02468aceeca86420";
+    var key = "3ff81cda5f417784";
+    var plaintext = "ff1c9ca3596b7d48";
     var binKey = hexToBinary(key);
     console.log("Part 1: ");
     var roundKeys = generateRoundKeys(binKey);
@@ -268,8 +268,8 @@ function desRound(Li, Ri, roundKey, index) {
     var permuted = permutation(substituted);
     var newR = xor(Li, permuted);
     if (index !== undefined && index === 0) {
-        console.log("ER0: ".concat(expandedR));
-        console.log("XOR (A): ".concat(xorResult));
+        console.log("ER0: ".concat(expandedR, " - ").concat(binaryToHex(expandedR)));
+        console.log("XOR (A): ".concat(xorResult, " - ").concat(binaryToHex(xorResult)));
         console.log("S-Box: ".concat(substituted));
         console.log("Permuted (F): ".concat(permuted));
         console.log("R".concat(index + 1, ": ").concat(newR, " - ").concat(binaryToHex(newR)));

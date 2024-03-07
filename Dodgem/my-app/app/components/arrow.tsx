@@ -6,16 +6,15 @@ interface ArrowProps {
   setMap: React.Dispatch<React.SetStateAction<number[]>>,
   startSelected: IStartSelected,
   setStartSelected: React.Dispatch<React.SetStateAction<IStartSelected>>,
-  setCountWhite: React.Dispatch<React.SetStateAction<number>>,
-  setCountBlack: React.Dispatch<React.SetStateAction<number>>
+  setIsComputerMove: React.Dispatch<React.SetStateAction<boolean>>,
 }
 
-export default function Arrow({ direction, map, setMap, startSelected, setStartSelected, setCountWhite, setCountBlack }: ArrowProps) {
+export default function Arrow({ direction, map, setMap, startSelected, setStartSelected, setIsComputerMove }: ArrowProps) {
   const handleClick = () => {
     if(direction === 'top' && startSelected.isWhiteMoved) {
       if(startSelected.isSelected && startSelected.index !== null && [0, 1, 2].includes(startSelected.index)) {
         map[startSelected.index] = 0
-        setCountWhite(pre => pre + 1)
+        setMap(map)
         setStartSelected({
           index: null,
           isSelected: false,
@@ -26,7 +25,8 @@ export default function Arrow({ direction, map, setMap, startSelected, setStartS
       if(direction === 'right' && !startSelected.isWhiteMoved) {
         if(startSelected.isSelected && startSelected.index !== null && [2, 5, 8].includes(startSelected.index)) {
           map[startSelected.index] = 0
-          setCountBlack(pre => pre + 1)
+          setMap(map)
+          setIsComputerMove(true)
           setStartSelected({
             index: null,
             isSelected: false,

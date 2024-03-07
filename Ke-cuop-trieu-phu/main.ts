@@ -1,199 +1,117 @@
-const T = [0, 0, 0]
-const R = [[0, 1], [1, 0], [1, 1], [0, 2], [2, 0]]
-let isActive = true
+class BoatNode {
+  value: number[];
+  parent?: BoatNode;
 
-const visit: { [key: string]: boolean } = {}
-
-const hFunction = (arr: number[][]) => {
-  return arr.map(e => e[0] + e[1])
+  constructor(value: number[], parent?: BoatNode) {
+    this.value = value;
+    this.parent = parent;
+  }
 }
 
-const bfs = (u: number[]) => {
-  const L: number[][] = []
-  const res: number[][] = []
-  
-  L.push(u)
-  visit[`${u}`] = true
-  
-  console.log("List:");
-  
-  while(L[0][0] !== T[0] || L[0][1] !== T[1] || L[0][2] !== T[2]) {
-    let v: number[][] = []
-    const temp = L.shift() as number[]
-  
-    if(temp[2] === 1) {
-      R.forEach((r) => {
-        if(temp[0] >= r[0] && temp[1] >= r[1]) {
-          v.push([temp[0] - r[0], temp[1] - r[1], 0])
-        }
-      })
-    }
-    else {
-      R.forEach((r) => {
-        if(temp[0] + r[0] <= u[0] && temp[1] + r[1] <= u[1]) {
-          v.push([temp[0] + r[0], temp[1] + r[1], 1])
-        }
-      })
-    }
+class Game {
+  private L: BoatNode[] = [new BoatNode([3, 3, 1])];
+  private step = [[0, 1], [1, 0], [1, 1], [0, 2], [2, 0]];
+  private visit: {[key: string]: boolean} = {}; // Can use map or dictionary (i used dictionary instead)
+  private goalState: BoatNode | undefined;
 
-    const hArr = hFunction(v)
-
-    let count = 0
-    for(const x of v) {
-      const oppSide: number[] = [u[0] - x[0], u[1] - x[1]]  
-      if((oppSide[0] >= oppSide[1] || oppSide[0] === 0 || oppSide[0] === 3) && (x[0] >= x[1] || x[0] === 0 || x[0] === 3) && !visit[`${x}`]) {
-        L.push(x)
-        visit[`${x}`] = true
-        count++
-      }
-    }
-
-    if(count > 0) {
-      res.push(temp)
-      count = 0
-    }
-
-    if(L.length === 0) {
-      isActive = false
-      break
-    }
-    console.log(L)
+  constructor() {
+    this.visit[`${this.L[0].value}`] = true;
   }
 
-  res.push(T)
-  return res
+  private conditionOppSide(u: BoatNode): boolean {
+    const oppSide: number[] = [3 - u.value[0], 3 - u.value[1]]
+    return (oppSide[0] >= oppSide[1] || oppSide[0] === 0 || oppSide[0] === 3) && (u.value[0] >= u.value[1] || u.value[0] === 0 || u.value[0] === 3)
+  }
+
+  private conditionStartSide(u: BoatNode, r: number[]): BoatNode | null {
+    if(u.value[0] >= r[0] && u.value[1] >= r[1]) {
+      const newNode = [u.value[0] - r[0], u.value[1] - r[1], 0]
+      const newState = new BoatNode(newNode, u); // g(v) = k(u, v) + 1 = cost of parent + 1
+      const isOppSide = this.conditionOppSide(newState)
+      return isOppSide ? newState : null
+    }
+    return null
+  }
+
+  private conditionEndSide(u: BoatNode, r: number[]): BoatNode | null {
+    if(u.value[0] + r[0] <= 3 && u.value[1] + r[1] <= 3) {
+      const newNode = [u.value[0] + r[0], u.value[1] + r[1], 1];
+      const newState = new BoatNode(newNode, u) // g(v) = k(u, v) + 1 = cost of parent + 1
+      const isOppSide = this.conditionOppSide(newState)
+      return isOppSide ? newState : null
+    }
+    return null
+  }
+
+  private generatePossibleMoves(u: BoatNode): BoatNode[] {
+    const v: BoatNode[] = [];
+    if(u.value[2] === 1) {
+      this.step.forEach((r) => {
+        const newBoatNode = this.conditionStartSide(u, r);
+        if(newBoatNode) {
+          v.push(newBoatNode);
+        }
+      });
+    }
+    else {
+      this.step.forEach((r) => {
+        const newBoatNode = this.conditionEndSide(u, r);
+        if(newBoatNode) {
+          v.push(newBoatNode);
+        }
+      });
+    }
+
+    return v
+  }
+
+  private updateQueue(v: BoatNode[]): void {
+    for(const x of v) {
+      if(!this.visit[`${x.value}`]) {
+        this.L.push(x)
+        this.visit[`${x.value}`] = true
+      }
+    }
+    // Sort L by cost
+    // this.L.sort((a, b) => a.totalCost - b.totalCost);
+    console.log(this.L.map(boatNode => {
+      return {
+        boatNode: boatNode.value,
+      }
+    }))
+  }
+
+  private reconstructPath(goalState: BoatNode | undefined): void {
+    if(goalState) {
+      console.log("Win");
+      const path: BoatNode[] = [];
+      let current: BoatNode | undefined = goalState;
+      while(current) {
+        path.push(current);
+        current = current.parent;
+      }
+      for(let i = path.length - 1; i >= 0; i--) {
+        console.log(path[i].value);
+      }
+    } else {
+      console.log("No solution");
+    }
+  }
+
+  public aStar(): void {
+    while(this.L.length > 0) {
+      const u = this.L.pop();
+      if(!u) continue;
+      if(u.value[0] === 0 && u.value[1] === 0 && u.value[2] === 0) {
+        this.goalState = u;
+        break;
+      }
+      const v = this.generatePossibleMoves(u);
+      this.updateQueue(v);
+    }
+    this.reconstructPath(this.goalState);
+  }
 }
 
-// const hillClimbing = (u: number[]) => {
-//   let L1: number[][] = []
-//   const L: number[][] = []
-//   const res: number[][] = []
-  
-//   L1.push(u)
-//   L.push(u)
-
-//   visit[`${u}`] = true
-  
-//   console.log("List:");
-  
-//   while(L[0][0] !== T[0] || L[0][1] !== T[1] || L[0][2] !== T[2]) {
-//     let v: number[][] = []
-
-//     const temp = L.shift() as number[]
-  
-//     if(temp[2] === 1) {
-//       R.forEach((r) => {
-//         if(temp[0] >= r[0] && temp[1] >= r[1]) {
-//           v.push([temp[0] - r[0], temp[1] - r[1], 0])
-//         }
-//       })
-//     }
-//     else {
-//       R.forEach((r) => {
-//         if(temp[0] + r[0] <= u[0] && temp[1] + r[1] <= u[1]) {
-//           v.push([temp[0] + r[0], temp[1] + r[1], 1])
-//         }
-//       })
-//     }
-
-//     getAdvantage(v)
-//     v.forEach((x) => {
-//       L1.push(x)
-//     })
-
-//     let count = 0
-//     for(const x of L1) {
-//       const oppSide: number[] = [u[0] - x[0], u[1] - x[1]]  
-//       if((oppSide[0] >= oppSide[1] || oppSide[0] === 0 || oppSide[0] === 3) && (x[0] >= x[1] || x[0] === 0 || x[0] === 3) && !visit[`${x}`]) {
-//         L.push([x[0], x[1], x[2]])
-//         visit[`${x}`] = true
-//         count++
-//       }
-//     }
-
-//     if(count > 0) {
-//       res.push(temp)
-//       count = 0
-//     }
-
-//     if(L.length === 0) {
-//       isActive = false
-//       break
-//     }
-//     L1 = []
-//     console.log(L)
-//   }
-
-//   res.push(T)
-//   return res
-// }
-
-// const dfs = (u: number[]) => {
-//   const L: number[][] = []
-//   const res: number[][] = []
-  
-//   L.push(u)
-//   visit[`${u}`] = true
-//   let lastIndex = L.length - 1
-  
-//   while(L[lastIndex][0] !== T[0] || L[lastIndex][1] !== T[1] || L[lastIndex][2] !== T[2]) {
-//     const v: number[][] = []
-//     const temp = L.pop() as number[]
-  
-//     if(temp[2] === 1) {
-//       R.forEach((r) => {
-//         if(temp[0] >= r[0] && temp[1] >= r[1]) {
-//           v.push([temp[0] - r[0], temp[1] - r[1], 0])
-//         }
-//       })
-//     }
-//     else {
-//       R.forEach((r) => {
-//         if(temp[0] + r[0] <= u[0] && temp[1] + r[1] <= u[1]) {
-//           v.push([temp[0] + r[0], temp[1] + r[1], 1])
-//         }
-//       })
-//     }
-
-//     getAdvantage(v)
-
-//     let count = 0
-//     for(const x of v) {
-//       const oppSide: number[] = [u[0] - x[0], u[1] - x[1]]  
-//       if((oppSide[0] >= oppSide[1] || oppSide[0] === 0 || oppSide[0] === 3) && (x[0] >= x[1] || x[0] === 0 || x[0] === 3) && !visit[`${x}`]) {
-//         L.push([x[0], x[1], x[2]])
-//         visit[`${x}`] = true
-//         count++
-//       }
-//     }
-
-//     if(count > 0) {
-//       res.push(temp)
-//       count = 0
-//     }
-
-//     if(L.length === 0) {
-//       isActive = false
-//       break
-//     }
-//     lastIndex = L.length - 1
-//     console.log(L)
-//   }
-
-//   res.push(T)
-//   return res
-// }
-
-const main = () => {
-  const u = [3, 3, 1]
-  const res = bfs(u)
-
-  console.log("Step:")
-
-  isActive === true ? (
-    res.forEach((x) => {
-    console.log(x)
-  })) : console.log("Not found")
-}
-
-main()
+const game = new Game();
+game.aStar();

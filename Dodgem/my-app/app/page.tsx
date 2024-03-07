@@ -27,19 +27,14 @@ export default function Home() {
     index: null,
     isSelected: false
   })
-  const [countWhite, setCountWhite] = useState(0)
-  const [countBlack, setCountBlack] = useState(0)
+
+  const [isComputerMove, setIsComputerMove] = useState(true) 
 
   const [winner, setWinner] = useState<string>("")
 
   useEffect(() => {
-    const nextMove = computerMove(map) as Board
-    return setMap(nextMove.getMap())
+    setWinner(checkWinner(map))
   }, [map])
-
-  useEffect(() => {
-    setWinner(checkWinner({countBlack, countWhite}))
-  }, [countBlack, countWhite])
 
   const handleReset = () => {
     setMap(START)
@@ -52,10 +47,32 @@ export default function Home() {
       index: null,
       isSelected: false
     })
-    setCountWhite(0)
-    setCountBlack(0)
+    // setCountWhite(0)
+    // setCountBlack(0)
     setWinner("")
+    setIsComputerMove(true)
   }
+
+  // Computer
+  useEffect(() => {
+    const handleMove = (nextBoard: Board) => {
+      setMap(nextBoard.getMap())
+      setStartSelected({
+        index: null,
+        isSelected: false,
+        isWhiteMoved: false
+      })
+      setIsComputerMove(false)
+    }
+    
+    if(isComputerMove) {
+      const nextBoard = computerMove(map)
+      console.log(nextBoard)
+      if(nextBoard) {
+        setTimeout(() => handleMove(nextBoard), 500)
+      }
+    }
+  }, [isComputerMove, map, endSelected, setMap])
 
   return (
     <main className="h-screen grid place-items-center">
@@ -64,8 +81,8 @@ export default function Home() {
       </div>
 
       <div className="relative w-[350px] h-[350px] bg-slate-400">
-        <Arrow direction="top" map={map} setMap={setMap} startSelected={startSelected} setStartSelected={setStartSelected} setCountWhite={setCountWhite} setCountBlack={setCountBlack}/>
-        <Arrow direction="right" map={map} setMap={setMap} startSelected={startSelected} setStartSelected={setStartSelected} setCountWhite={setCountWhite} setCountBlack={setCountBlack}/>
+        <Arrow direction="top" map={map} setMap={setMap} startSelected={startSelected} setStartSelected={setStartSelected} setIsComputerMove={setIsComputerMove}/>
+        <Arrow direction="right" map={map} setMap={setMap} startSelected={startSelected} setStartSelected={setStartSelected} setIsComputerMove={setIsComputerMove}/>
 
         <div className="h-full grid grid-cols-9">
           {
@@ -75,21 +92,22 @@ export default function Home() {
              setStartSelected={setStartSelected}
              endSelected={endSelected}
              setEndSelected={setEndSelected}
+             setIsComputerMove={setIsComputerMove}
             />)
           }
         </div>
 
-        <div className="absolute top-0 -left-20 bottom-1/2 translate-y-1/2 flex items-center">
+        {/* <div className="absolute top-0 -left-20 bottom-1/2 translate-y-1/2 flex items-center">
           <div>
             Black: {countBlack}
           </div>
-        </div>
+        </div> */}
 
-        <div className="absolute -bottom-10 left-1/2 -translate-x-1/2">
+        {/* <div className="absolute -bottom-10 left-1/2 -translate-x-1/2">
           <div>
             White: {countWhite}
           </div>
-        </div>
+        </div> */}
       </div>
 
       {

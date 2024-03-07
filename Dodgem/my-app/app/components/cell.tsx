@@ -12,9 +12,10 @@ interface CellProps {
   setStartSelected: Dispatch<SetStateAction<IStartSelected>>
   endSelected: ISelected
   setEndSelected: Dispatch<SetStateAction<ISelected>>
+  setIsComputerMove: Dispatch<SetStateAction<boolean>>
 }
 
-export default function Cell({ index, map, setMap, startSelected, setStartSelected, endSelected, setEndSelected }: CellProps) {
+export default function Cell({ index, map, setMap, startSelected, setStartSelected, endSelected, setEndSelected, setIsComputerMove }: CellProps) {
   const handleStartSelected = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     e.stopPropagation()
     if(canMoveWhite({map, startSelected, endSelected, index})) {
@@ -66,9 +67,10 @@ export default function Cell({ index, map, setMap, startSelected, setStartSelect
           isWhiteMoved: !startSelected.isWhiteMoved
         })
         setMap(newMap)
+        setIsComputerMove(true)
       }
     }
-  }, [startSelected, setStartSelected, endSelected, setEndSelected, setMap, index, map])
+  }, [startSelected, setStartSelected, endSelected, setEndSelected, setMap, index, map, setIsComputerMove])
 
   return (
     <div
