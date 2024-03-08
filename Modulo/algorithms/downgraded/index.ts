@@ -8,8 +8,14 @@ export class ModDownGraded {
     this.m = m
     this.n = n
   }
+  
+  recursive(m: number) {
+    if(m === 1) return this.a % this.n
+    if(m % 2 === 0) return (this.recursive(m / 2) ** 2) % this.n
+    else return (this.recursive(m - 1) * this.a) % this.n
+  }
 
-  cal() {
-    
+  downgraded() {
+    return this.recursive(this.m)
   }
 }
