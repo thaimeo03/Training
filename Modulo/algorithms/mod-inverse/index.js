@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ModInverse = void 0;
+var gcd_1 = require("../../gcd");
 var ModInverse = /** @class */ (function () {
     function ModInverse(_a) {
         var a = _a.a, n = _a.n;
@@ -32,22 +33,8 @@ var ModInverse = /** @class */ (function () {
     // Check inverse modulo exists (GCD)
     ModInverse.prototype.checkModuloInverse = function (_a) {
         var isExtendMod = _a.isExtendMod;
-        var gcd = function (a, b) {
-            if (b === 0) {
-                return a;
-            }
-            return gcd(b, a % b);
-        };
-        var extendGcd = function (a, b) {
-            if (b === 0) {
-                return [a, 0, 1];
-            }
-            else {
-                var _a = extendGcd(b, a % b), d = _a[0], x = _a[1], y = _a[2];
-                return [d, y - Math.floor(a / b) * x, x];
-            }
-        };
-        var res = isExtendMod ? extendGcd(this.a, this.n) : gcd(this.a, this.n);
+        var gcdCal = new gcd_1.GCDCalculator();
+        var res = isExtendMod ? gcdCal.extendGcd(this.a, this.n) : gcdCal.gcd(this.a, this.n);
         return res;
     };
     return ModInverse;

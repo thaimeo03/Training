@@ -9,7 +9,7 @@ export class ModDownGraded {
     this.n = n
   }
   
-  recursive(m: number) {
+  recursive(m: number): number {
     if(m === 1) return this.a % this.n
     if(m % 2 === 0) return (this.recursive(m / 2) ** 2) % this.n
     else return (this.recursive(m - 1) * this.a) % this.n
