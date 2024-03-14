@@ -1,50 +1,17 @@
-var TreeNode = /** @class */ (function () {
-    function TreeNode(val, left, right) {
-        this.val = (val === undefined ? 0 : val);
-        this.left = (left === undefined ? null : left);
-        this.right = (right === undefined ? null : right);
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var code_1 = require("./code");
+var Main = /** @class */ (function () {
+    function Main() {
+        this.paymentService = new code_1.PaymentService();
     }
-    return TreeNode;
+    Main.prototype.solve = function () {
+        this.paymentService.registerPayment({
+            method: code_1.PAYMENT_METHOD.APPLE_PAY,
+            payment: new code_1.ApplePay()
+        });
+        this.paymentService.pay(code_1.PAYMENT_METHOD.PAYPAL);
+    };
+    return Main;
 }());
-var bfs = function (tree) {
-    var queue = [tree];
-    while (queue.length) {
-        var node = queue.shift();
-        console.log((!node || node.val === null) ? 'null' : node.val);
-        if (node === null || node === void 0 ? void 0 : node.left) {
-            queue.push(node.left);
-        }
-        if (node === null || node === void 0 ? void 0 : node.right) {
-            queue.push(node.right);
-        }
-    }
-};
-function minDepth(root) {
-    if (!root)
-        return 0;
-    var queue = [root];
-    var minDepth = 0;
-    while (queue.length) {
-        var len = queue.length;
-        minDepth++;
-        for (var i = 0; i < len; i++) {
-            var node = queue.shift();
-            if (node) {
-                if (!node.left && !node.right)
-                    return minDepth;
-                if (node.left)
-                    queue.push(node.left);
-                if (node.right)
-                    queue.push(node.right);
-            }
-        }
-    }
-    return minDepth;
-}
-var main = function () {
-    // [2,null,3,null,4,null,5,null,6] -> to tree node
-    var res = minDepth(new TreeNode(2, new TreeNode(3), new TreeNode(4, new TreeNode(5), new TreeNode(6))));
-    console.log(res);
-    // bfs(res)
-};
-main();
+new Main().solve();
