@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var downgraded_1 = require("./algorithms/downgraded");
 var main = function () {
     // ---------- 2. x = a^-1 (mod n) --------------
     // const {a, n} = {a: 1885, n: 6563}
@@ -12,8 +11,6 @@ var main = function () {
     // const modEquation = new ModEquation({m1, m2, m3, a1, a2, a3})
     // console.log("Chinese Remainder Theorem:", modEquation.chineseRemainderTheorem());
     // Downgraded
-    var _a = { a: 367, m: 6329, n: 6329 }, a = _a.a, m = _a.m, n = _a.n;
-    var modDowngraded = new downgraded_1.ModDownGraded({ a: a, m: m, n: n });
-    console.log("Downgraded:", modDowngraded.downgraded());
+    // s
 };
 main();

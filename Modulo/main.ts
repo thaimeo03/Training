@@ -17,9 +17,7 @@ const main = () => {
 
 
   // Downgraded
-  const {a, m, n} = {a: 367, m: 6329, n: 6329}
-  const modDowngraded = new ModDownGraded({a, m, n})
-  console.log("Downgraded:", modDowngraded.downgraded());
+  // s
 }
 
 main()
