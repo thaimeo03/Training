@@ -1,3 +1,5 @@
+import { GCDCalculator } from "../../gcd"
+
 export class ModInverse {
   private a: number
   private n: number
@@ -33,24 +35,8 @@ export class ModInverse {
 
   // Check inverse modulo exists (GCD)
   checkModuloInverse({isExtendMod}: {isExtendMod: boolean}) {
-    const gcd = (a: number, b: number): number => {
-      if(b === 0) {
-        return a
-      }
-      return gcd(b, a % b)
-    }
-
-    const extendGcd = (a: number, b: number): [number, number, number] => {
-      if(b === 0) {
-        return [a, 0, 1]
-      }
-      else {
-        const [d, x, y] = extendGcd(b, a % b)
-        return [d, y - Math.floor(a / b) * x, x]
-      }
-    }
-
-    const res = isExtendMod ? extendGcd(this.a, this.n) : gcd(this.a, this.n)
+    const gcdCal = new GCDCalculator()
+    const res = isExtendMod ? gcdCal.extendGcd(this.a, this.n) : gcdCal.gcd(this.a, this.n)
 
     return res
   }
