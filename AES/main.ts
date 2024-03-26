@@ -24,24 +24,55 @@ const rCon: number[] = [
 ];
 
 // AES Key Expansion Function
-function keyExpansion(key: number[]): number[][] {
+function keyExpansion(key: number[]) {
   const w: number[][] = [];
   
   for (let i = 0; i < 4; i++) {
     w[i] = [key[4 * i], key[4 * i + 1], key[4 * i + 2], key[4 * i + 3]];
   }
 
+  console.log("1.")
+  w.map((w, index) => {
+    const wHex = transformNumberArrayToHexString(w)
+    console.log(`w${index}: ${wHex}`);
+    return wHex
+  })
+
   for (let i = 4; i < 44; i++) {
     let temp = [...w[i - 1]];
+    
     if (i % 4 === 0) {
       temp = [
+        temp[1],
+        temp[2],
+        temp[3],
+        temp[0]
+      ]
+
+      if(i === 4) {
+        console.log("2.");
+        console.log("rw (Rot word): " + transformNumberArrayToHexString(temp));
+      }
+
+      temp = [
+        sBox[temp[0] >> 4][temp[0] & 0x0f],
         sBox[temp[1] >> 4][temp[1] & 0x0f],
         sBox[temp[2] >> 4][temp[2] & 0x0f],
-        sBox[temp[3] >> 4][temp[3] & 0x0f],
-        sBox[temp[0] >> 4][temp[0] & 0x0f]
-      ];
+        sBox[temp[3] >> 4][temp[3] & 0x0f]
+    ];
+
+      if(i === 4) {
+        console.log("3.");
+        console.log("sw (Sub word): " + transformNumberArrayToHexString(temp));
+      }
+
       temp[0] ^= rCon[i / 4 - 1];
+      if(i === 4) {
+        console.log("4.");
+        console.log("x (Xor): " + transformNumberArrayToHexString(temp));
+      }
     }
+
     w[i] = [
       w[i - 4][0] ^ temp[0],
       w[i - 4][1] ^ temp[1],
@@ -50,38 +81,29 @@ function keyExpansion(key: number[]): number[][] {
     ];
   }
 
-  return w;
-}
+  console.log("5.");
+  w.forEach((w, index) => {
+    if([4, 5, 6,7].some(i => i === index)) {
+      const wHex = transformNumberArrayToHexString(w)
+      console.log(`w${index}: ${wHex}`);
+      return wHex
+    }
+  })
 
-// Main function to generate AES key schedule
-function generateKeys(key: number[]): void {
-  const expandedKeys = keyExpansion(key);
+  // K1 -> K10
+  const res: number[][] = [];
   for (let i = 0; i < 10; i++) {
-    console.log(`Key ${i + 1}:`);
-    console.log(`Stage 1: w${4 * i}: ${key.slice(4 * i, 4 * i + 4).map(byte => byte.toString(16)).join(' ')}`);
-    console.log(`         w${4 * i + 1}: ${key.slice(4 * i + 4, 4 * i + 8).map(byte => byte.toString(16)).join(' ')}`);
-    console.log(`         w${4 * i + 2}: ${key.slice(4 * i + 8, 4 * i + 12).map(byte => byte.toString(16)).join(' ')}`);
-    console.log(`         w${4 * i + 3}: ${key.slice(4 * i + 12, 4 * i + 16).map(byte => byte.toString(16)).join(' ')}`);
-
-    const rotatedWord = [expandedKeys[4 * i + 3][1], expandedKeys[4 * i + 3][2], expandedKeys[4 * i + 3][3], expandedKeys[4 * i + 3][0]];
-    console.log(`Stage 2: Rotated word: ${rotatedWord.map(byte => byte.toString(16)).join(' ')}`);
-
-    const subWord = rotatedWord.map(byte => sBox[byte >> 4][byte & 0x0f]);
-    console.log(`Stage 3: Sub word: ${subWord.map(byte => byte.toString(16)).join(' ')}`);
-
-    const rconByte = rCon[i];
-    const xorWord = subWord.map((byte, index) => {
-      if(index !== 0) {
-        return byte;
-      }
-      return byte ^ rconByte
-    });
-    console.log(`Stage 4: Xor word: ${xorWord.map(byte => byte.toString(16)).join(' ')}`);
-
-    const key_i = expandedKeys[4 * i].map((byte, index) => byte ^ xorWord[index]);
-    
-    console.log(`Stage 5: Key ${i + 1}: ${key_i.map(byte => byte.toString(16)).join(' ')}\n`);
+    res[i] = [...w[i * 4 + 4], ...w[i * 4 + 5], ...w[i * 4 + 6], ...w[i * 4 + 7]];
   }
+  
+  console.log("Keys.");
+  const keys = res.map((w, index) => {
+    const wHex = transformNumberArrayToHexString(w)
+    console.log(`k${index + 1}: ${wHex}`);
+    return wHex
+  })
+
+  return keys;
 }
 
 function transformHexToHexArray(hexString: string): number[] {
@@ -93,8 +115,126 @@ function transformHexToHexArray(hexString: string): number[] {
   return hexArray;
 }
 
-// Example usage
+function transformNumberArrayToHexString(arr: number[]): string {
+  return arr.map((byte) => byte.toString(16)).join(' ')
+}
+
+
+// Main
 const firstKey = "6704C20E086B3F537AE5721F486DC559"
-// const key: number[] = [0x0f, 0x15, 0x71, 0xc9, 0x47, 0xd9, 0xe8, 0x59, 0x0c, 0xb7, 0xad, 0xd6, 0xaf, 0x7f, 0x67, 0x98];
+const firstPlaintext = "4AEB5D62EC3B55DBF5D5A87708E2FF1E"
+// const firstKey = ""
+// const firstPlaintext = ""
+
 const key = transformHexToHexArray(firstKey);
-generateKeys(key);
+const plaintext = transformHexToHexArray(firstPlaintext)
+
+const keys = keyExpansion(key);
+const cipherText = aesEncrypt(plaintext)
+
+console.log("Cipher text: " + transformNumberArrayToHexString(cipherText));
+
+
+// Perform AES encryption
+function aesEncrypt(plaintext: number[]): number[] {
+  let state: number[] = plaintext.slice(); // Make a copy of the plaintext
+
+  // Initial round: AddRoundKey
+  state = addRoundKey(state, key);
+
+  // Main rounds (9 rounds)
+  for (let round = 0; round < 9; round++) {
+      state = subBytes(state);
+      state = shiftRows(state);
+      state = mixColumns(state);
+      state = addRoundKey(state, transformHexToHexArray(keys[round]));
+  }
+
+  // console.log("State " + state);
+
+  // // Final round
+  state = subBytes(state);
+  state = shiftRows(state);
+  state = addRoundKey(state, transformHexToHexArray(keys[9]));
+
+  return state;
+}
+
+// AddRoundKey operation
+function addRoundKey(state: number[], roundKey: number[]): number[] {
+  const newState: number[] = [];
+  for (let i = 0; i < state.length; i++) {
+      newState.push(state[i] ^ roundKey[i]);
+  }
+  return newState;
+}
+
+// SubBytes operation
+function subBytes(state: number[]): number[] {
+  const newState: number[] = [];
+  for (let i = 0; i < state.length; i++) {
+      const row = state[i] >> 4;
+      const column = state[i] & 0x0f;
+      newState.push(sBox[row][column]);
+  }
+  return newState;
+}
+
+// ShiftRows operation
+function shiftRows(state: number[]): number[] {
+  const newState: number[] = [...state];
+  // Row 1: No shift
+  // Row 2: Circular shift left by 1 byte
+  newState[4] = state[5];
+  newState[5] = state[6];
+  newState[6] = state[7];
+  newState[7] = state[4];
+  // Row 3: Circular shift left by 2 bytes
+  newState[8] = state[10];
+  newState[9] = state[11];
+  newState[10] = state[8];
+  newState[11] = state[9];
+  // Row 4: Circular shift left by 3 bytes
+  newState[12] = state[15];
+  newState[13] = state[12];
+  newState[14] = state[13];
+  newState[15] = state[14];
+  return newState;
+}
+
+// MixColumns operation
+function mixColumns(state: number[]): number[] {
+  const newState: number[] = [];
+  for (let i = 0; i < 4; i++) {
+      const col: number[] = [
+          state[i],
+          state[i + 4],
+          state[i + 8],
+          state[i + 12]
+      ];
+      newState.push(
+          gmul(0x02, col[0]) ^ gmul(0x03, col[1]) ^ col[2] ^ col[3],
+          col[0] ^ gmul(0x02, col[1]) ^ gmul(0x03, col[2]) ^ col[3],
+          col[0] ^ col[1] ^ gmul(0x02, col[2]) ^ gmul(0x03, col[3]),
+          gmul(0x03, col[0]) ^ col[1] ^ col[2] ^ gmul(0x02, col[3])
+      );
+  }
+  return newState;
+}
+
+// Helper function for Galois Field multiplication (GF(2^8))
+function gmul(a: number, b: number): number {
+  let p = 0;
+  for (let i = 0; i < 8; i++) {
+      if ((b & 1) !== 0) {
+          p ^= a;
+      }
+      const hiBitSet = (a & 0x80) !== 0;
+      a <<= 1;
+      if (hiBitSet) {
+          a ^= 0x1b; // XOR with irreducible polynomial x^8 + x^4 + x^3 + x + 1
+      }
+      b >>= 1;
+  }
+  return p & 0xff; // Keep only 8 bits
+}
