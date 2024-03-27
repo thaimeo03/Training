@@ -121,10 +121,10 @@ function transformNumberArrayToHexString(arr: number[]): string {
 
 
 // Main
-const firstKey = "6704C20E086B3F537AE5721F486DC559"
-const firstPlaintext = "4AEB5D62EC3B55DBF5D5A87708E2FF1E"
-// const firstKey = ""
-// const firstPlaintext = ""
+// const firstKey = "6704C20E086B3F537AE5721F486DC559"
+// const firstPlaintext = "4AEB5D62EC3B55DBF5D5A87708E2FF1E"
+const firstKey = "2b7e151628aed2a6abf7158809cf4f3c"
+const firstPlaintext = "3243f6a8885a308d313198a2e0370734"
 
 const key = transformHexToHexArray(firstKey);
 const plaintext = transformHexToHexArray(firstPlaintext)
@@ -137,17 +137,32 @@ console.log("Cipher text: " + transformNumberArrayToHexString(cipherText));
 
 // Perform AES encryption
 function aesEncrypt(plaintext: number[]): number[] {
-  let state: number[] = plaintext.slice(); // Make a copy of the plaintext
-
+  let state: number[] = plaintext
+  // console.log(key);
+  
   // Initial round: AddRoundKey
   state = addRoundKey(state, key);
+  console.log("Add round key: " + transformNumberArrayToHexString(state));
 
   // Main rounds (9 rounds)
   for (let round = 0; round < 9; round++) {
       state = subBytes(state);
+      if(round === 0) {
+        console.log("SubByte: " + transformNumberArrayToHexString(state));
+      }
       state = shiftRows(state);
+      if(round === 0) {
+        console.log("ShiftRows: " + transformNumberArrayToHexString(state));
+      }
       state = mixColumns(state);
+      if(round === 0) {
+        console.log("MixColumns: " + transformNumberArrayToHexString(state));
+      }
+
       state = addRoundKey(state, transformHexToHexArray(keys[round]));
+      // console.log(transformHexToHexArray(keys[round]));
+      
+      console.log(`Round ${round + 1}: ` + transformNumberArrayToHexString(state));
   }
 
   // console.log("State " + state);
@@ -182,42 +197,32 @@ function subBytes(state: number[]): number[] {
 
 // ShiftRows operation
 function shiftRows(state: number[]): number[] {
-  const newState: number[] = [...state];
-  // Row 1: No shift
-  // Row 2: Circular shift left by 1 byte
-  newState[4] = state[5];
-  newState[5] = state[6];
-  newState[6] = state[7];
-  newState[7] = state[4];
-  // Row 3: Circular shift left by 2 bytes
-  newState[8] = state[10];
-  newState[9] = state[11];
-  newState[10] = state[8];
-  newState[11] = state[9];
-  // Row 4: Circular shift left by 3 bytes
-  newState[12] = state[15];
-  newState[13] = state[12];
-  newState[14] = state[13];
-  newState[15] = state[14];
+  const newState: number[] = [];
+  for (let row = 0; row < 4; row++) {
+      for (let col = 0; col < 4; col++) {
+          newState[row + col * 4] = state[(row + col * 4 + (4 * row)) % 16];
+      }
+  }
   return newState;
 }
 
-// MixColumns operation
+// MixColumns operation using matrix multiplication
 function mixColumns(state: number[]): number[] {
+  const matrix = [
+      [0x02, 0x03, 0x01, 0x01],
+      [0x01, 0x02, 0x03, 0x01],
+      [0x01, 0x01, 0x02, 0x03],
+      [0x03, 0x01, 0x01, 0x02]
+  ];
   const newState: number[] = [];
-  for (let i = 0; i < 4; i++) {
-      const col: number[] = [
-          state[i],
-          state[i + 4],
-          state[i + 8],
-          state[i + 12]
-      ];
-      newState.push(
-          gmul(0x02, col[0]) ^ gmul(0x03, col[1]) ^ col[2] ^ col[3],
-          col[0] ^ gmul(0x02, col[1]) ^ gmul(0x03, col[2]) ^ col[3],
-          col[0] ^ col[1] ^ gmul(0x02, col[2]) ^ gmul(0x03, col[3]),
-          gmul(0x03, col[0]) ^ col[1] ^ col[2] ^ gmul(0x02, col[3])
-      );
+  for (let col = 0; col < 4; col++) {
+      for (let row = 0; row < 4; row++) {
+          let sum = 0;
+          for (let i = 0; i < 4; i++) {
+              sum ^= gmul(matrix[row][i], state[col * 4 + i]);
+          }
+          newState.push(sum);
+      }
   }
   return newState;
 }
