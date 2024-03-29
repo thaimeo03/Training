@@ -1,5 +1,5 @@
 import { sBox } from "../../constants";
-import { decorate, transformNumberArrayToHexString } from "../../utils";
+import { decorate, prettyPrintBin, transformHexToBinary, transformNumberArrayToHexString } from "../../utils";
 
 // Perform AES encryption
 export function aesEncrypt(plaintext: number[], key: number[], keysRound: number[][]): number[] {
